@@ -2,12 +2,22 @@ import re
 from pathlib import Path
 from setuptools import setup
 
+try:
+    import pypandoc
+except ImportError:
+    pypandoc = None
+
 
 PACKAGE = 'timeout'
 SRC_DIR = 'src'
 
 INIT_PATH = Path(__file__).parent / SRC_DIR / PACKAGE / '__init__.py'
 README_PATH = Path(__file__).parent / 'README.md'
+
+if pypandoc:
+    DESCRIPTION = pypandoc.convert(README_PATH.as_posix(), 'rst')
+else:
+    DESCRIPTION = README_PATH.read_text()
 
 VERSION = re.search(
     r'''^__version__ *= *["']([.\d]+)["']$''',
@@ -27,7 +37,7 @@ setup(
     ],
     description="Timeout library for generic interruption of main thread by an "
                 "exception after a configurable duration",
-    long_description=README_PATH.read_text(),
+    long_description=DESCRIPTION,
     url='https://github.com/dssg/signalled-timeout',
     package_dir={'': SRC_DIR},
     packages=[PACKAGE],
